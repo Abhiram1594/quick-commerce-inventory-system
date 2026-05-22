@@ -36,8 +36,21 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/status")
-    public CustomerOrder updateOrderStatus(@PathVariable Long id, @RequestBody Map<String, String> request) {
-        OrderStatus status = OrderStatus.valueOf(request.get("status"));
-        return orderService.updateOrderStatus(id, status);
+    public CustomerOrder updateOrderStatus(
+            @PathVariable Long id,
+            @RequestParam(required = false) OrderStatus status,
+            @RequestBody(required = false) Map<String, String> request
+    ) {
+        OrderStatus newStatus;
+
+        if (status != null) {
+            newStatus = status;
+        } else if (request != null && request.containsKey("status")) {
+            newStatus = OrderStatus.valueOf(request.get("status"));
+        } else {
+            throw new RuntimeException("Status is required");
+        }
+
+        return orderService.updateOrderStatus(id, newStatus);
     }
 }
